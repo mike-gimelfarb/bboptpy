@@ -22,7 +22,8 @@
  ================================================================
  REFERENCES:
 
-
+ [1] Luo, Kaiping. "A Novel Self-Adaptive Harmony Search Algorithm."
+ Journal of Applied Mathematics 2013.1 (2013): 653749.
  */
 
 #include <algorithm>
@@ -83,7 +84,10 @@ void NSHS::init(const multivariate_problem &f, const double *guess) {
 
 	// initialize parameters
 	_hmcr = 1.0 - 1.0 / (_n + 1);
-
+	_tunerange = 0.0;
+	for (int d = 0; d < _n; d++) {
+		_tunerange = std::max(_tunerange, (_upper[d] - _lower[d]) / 2);
+	}
 }
 
 void NSHS::iterate() {
@@ -101,22 +105,22 @@ multivariate_solution NSHS::optimize(const multivariate_problem &f,
 	return {_best->_x, _fev, false};
 }
 
-void NSHS::generate_harmony(){
+void NSHS::generate_harmony() {
 
 	// generate a new value for the i-th variable
-	for (int i = 0; i < _n; i++){
+	for (int i = 0; i < _n; i++) {
 
 		// generate a new value for the variable
-		if (Random::get(0.0, 1.0) < _hmcr){
+		if (Random::get(0.0, 1.0) < _hmcr) {
 			const int j = Random::get(0, _hms - 1);
 			_temp._x[i] = _hm[j]._x[i];
 		} else {
-			if (_fstd > _fstdmin){
+			if (_fstd > _fstdmin) {
 				_temp._x[i] = Random::get(_lower[i], _upper[i]);
 			} else {
 				double minj = _upper[i];
 				double maxj = _lower[i];
-				for (int j = 0; j < _hms; j++){
+				for (int j = 0; j < _hms; j++) {
 					minj = std::min(minj, _hm[j]._x[i]);
 					maxj = std::max(maxj, _hm[j]._x[i]);
 				}
@@ -125,8 +129,9 @@ void NSHS::generate_harmony(){
 		}
 
 		// adjust the new value
-		if (_fstd > _fstdmin){
-			const double bwi = 0.01 * (_upper[i] - _lower[i]) * (1.0 - (1.0 * _it) / _mit);
+		if (_fstd > _fstdmin) {
+			const double bwi = ((_upper[i] - _lower[i]) / _tunerange)
+					* (1.0 - (1. * _it) / _mit);
 			_temp._x[i] += Random::get(-bwi, bwi);
 		} else {
 			_temp._x[i] += Random::get(-_fstdmin, _fstdmin);
@@ -157,10 +162,10 @@ void NSHS::replace() {
 
 	// recalculate best point
 	_best = &*std::min_element(_hm.begin(), _hm.end(),
-		harmony::compare_fitness);
+			harmony::compare_fitness);
 }
 
-void NSHS::calculate_std(){
+void NSHS::calculate_std() {
 	double _fmean = 0.0;
 	double _fm2 = 0.0;
 	for (int i = 0; i < _hms; i++) {

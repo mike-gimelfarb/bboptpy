@@ -22,7 +22,8 @@
  ================================================================
  REFERENCES:
 
-
+ [1] Luo, Kaiping. "A Novel Self-Adaptive Harmony Search Algorithm."
+ Journal of Applied Mathematics 2013.1 (2013): 653749.
  */
 
 #ifndef MULTIVARIATE_NSHS_H_
@@ -46,7 +47,7 @@ class NSHS: public MultivariateOptimizer {
 
 protected:
 	int _mfev, _n, _hms, _it, _mit, _fev;
-	double _hmcr, _fstd, _fstdmin;
+	double _hmcr, _fstd, _fstdmin, _tunerange;
 	multivariate_problem _f;
 	std::vector<double> _lower, _upper;
 	std::vector<harmony> _hm;
