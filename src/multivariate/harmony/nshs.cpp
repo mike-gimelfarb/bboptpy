@@ -96,6 +96,10 @@ void NSHS::iterate() {
 	_it++;
 }
 
+multivariate_solution NSHS::solution(){
+	return {_best->_x, _fev, false};
+}
+
 multivariate_solution NSHS::optimize(const multivariate_problem &f,
 		const double *guess) {
 	init(f, guess);

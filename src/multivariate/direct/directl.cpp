@@ -309,6 +309,14 @@ void Directl::iterate() {
 	}
 }
 
+multivariate_solution Directl::solution(){
+	for (int i = 1; i <= _n; i++) {
+		_x[i - 1] = _c[(i - 1) * _mfev + (_minpos - 1)] * _l[i - 1]
+				+ _l[i - 1] * _u[i - 1];
+	}
+	return {_x, _numfunc, _ierror > 0};
+}
+
 multivariate_solution Directl::optimize(const multivariate_problem &f,
 		const double *guess) {
 	init(f, guess);

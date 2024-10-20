@@ -121,6 +121,10 @@ void AMPTTM::iterate() {
 	_it++;
 }
 
+multivariate_solution AMPTTM::solution(){
+	return {_bestx, _fev, 0, _gev, false};
+}
+
 multivariate_solution AMPTTM::optimize(const multivariate_problem &f,
 		const double *guess) {
 	init(f, guess);

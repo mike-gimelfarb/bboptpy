@@ -284,6 +284,12 @@ void BoxComplex::iterate() {
 	ptmax._f = fref;
 }
 
+multivariate_solution BoxComplex::solution(){
+	const auto &pt = *std::min_element(_box.begin(), _box.end(),
+				point::compare_fitness);
+	return {pt._x, _fev, 0, _bbev, converged()};
+}
+
 multivariate_solution BoxComplex::optimize(const multivariate_problem &f,
 		const double *guess) {
 	init(f, guess);

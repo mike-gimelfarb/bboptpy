@@ -122,6 +122,15 @@ void PikaiaSearch::iterate() {
 	_ig++;
 }
 
+multivariate_solution PikaiaSearch::solution() {
+
+	// Return best phenotype and its fitness
+	std::vector<double> x(_n);
+	double *oldph_ptr = row_ptr(_ifit[_np - 1], _n, &_oldph[0]);
+	std::copy(oldph_ptr, oldph_ptr + _n, &x[0]);
+	return {x, _fev, true};
+}
+
 multivariate_solution PikaiaSearch::optimize(const multivariate_problem &f,
 		const double *guess) {
 	init(f, guess);

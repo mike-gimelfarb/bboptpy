@@ -120,6 +120,10 @@ void CCPSOSearch::iterate() {
 	std::cout << _fyhat << std::endl;
 }
 
+multivariate_solution CCPSOSearch::solution(){
+	return {_yhat, _fev, converged()};
+}
+
 multivariate_solution CCPSOSearch::optimize(const multivariate_problem &f,
 		const double *guess) {
 
@@ -127,7 +131,7 @@ multivariate_solution CCPSOSearch::optimize(const multivariate_problem &f,
 	init(f, guess);
 
 	// main loop
-	bool converged = false;
+	bool converge = false;
 	while (true) {
 		iterate();
 
@@ -136,26 +140,13 @@ multivariate_solution CCPSOSearch::optimize(const multivariate_problem &f,
 			break;
 		}
 
-		// estimate diversity of swarm
-		int count = 0;
-		double mean = 0.;
-		double m2 = 0.;
-		for (const auto &pt : _X) {
-			const double x = dnrm2(_n, &pt[0]);
-			count++;
-			const double delta = x - mean;
-			mean += delta / count;
-			const double delta2 = x - mean;
-			m2 += delta * delta2;
-		}
-
 		// test convergence in standard deviation
-		if (m2 <= (_np - 1) * _stol * _stol) {
-			converged = true;
+		if (converged()) {
+			converge = true;
 			break;
 		}
 	}
-	return {_yhat, _fev, converged};
+	return {_yhat, _fev, converge};
 }
 
 double CCPSOSearch::evaluate(int j, double *z) {
@@ -178,6 +169,25 @@ double CCPSOSearch::evaluate(int j, double *z) {
 	}
 	return fit;
 }
+
+bool CCPSOSearch::converged(){
+
+	// estimate diversity of swarm
+	int count = 0;
+	double mean = 0.;
+	double m2 = 0.;
+	for (const auto &pt : _X) {
+		const double x = dnrm2(_n, &pt[0]);
+		count++;
+		const double delta = x - mean;
+		mean += delta / count;
+		const double delta2 = x - mean;
+		m2 += delta * delta2;
+	}
+
+	return m2 <= (_np - 1) * _stol * _stol;
+}
+
 /* =============================================================
  *
  * 				PARTICLE EVOLUTION SUBROUTINES

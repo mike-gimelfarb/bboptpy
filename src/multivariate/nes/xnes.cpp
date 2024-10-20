@@ -190,6 +190,10 @@ void xNES::iterate() {
 	}
 }
 
+multivariate_solution xNES::solution(){
+	return {_points[0]._x, _fev, converged()};
+}
+
 multivariate_solution xNES::optimize(const multivariate_problem &f,
 		const double *guess) {
 	init(f, guess);

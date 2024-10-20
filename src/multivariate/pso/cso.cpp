@@ -155,6 +155,10 @@ void CSOSearch::iterate() {
 	}
 }
 
+multivariate_solution CSOSearch::solution(){
+	return {_best->_x, _fev, converged()};
+}
+
 multivariate_solution CSOSearch::optimize(const multivariate_problem &f,
 		const double *guess) {
 
@@ -162,32 +166,37 @@ multivariate_solution CSOSearch::optimize(const multivariate_problem &f,
 	init(f, guess);
 
 	// main iteration loop over generations
-	bool converged = false;
+	bool converge = false;
 	while (_fev < _mfev) {
 
 		// perform a single generation
 		iterate();
 
-		// compute standard deviation of swarm radiuses
-		int count = 0;
-		double mean = 0.;
-		double m2 = 0.;
-		for (const auto &pt : _swarm) {
-			const double x = dnrm2(_n, &pt._x[0]);
-			count++;
-			const double delta = x - mean;
-			mean += delta / count;
-			const double delta2 = x - mean;
-			m2 += delta * delta2;
-		}
-
 		// test convergence in standard deviation
-		if (m2 <= (_np - 1) * _stol * _stol) {
-			converged = true;
+		if (converged()) {
+			converge = true;
 			break;
 		}
 	}
-	return {_best->_x, _fev, converged};
+	return {_best->_x, _fev, converge};
+}
+
+bool CSOSearch::converged(){
+
+	// compute standard deviation of swarm radiuses
+	int count = 0;
+	double mean = 0.;
+	double m2 = 0.;
+	for (const auto &pt : _swarm) {
+		const double x = dnrm2(_n, &pt._x[0]);
+		count++;
+		const double delta = x - mean;
+		mean += delta / count;
+		const double delta2 = x - mean;
+		m2 += delta * delta2;
+	}
+
+	return m2 <= (_np - 1) * _stol * _stol;
 }
 
 void CSOSearch::computePhi(int m) {

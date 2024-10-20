@@ -281,6 +281,10 @@ void MayflySearch::iterate() {
 	_fl *= _fldamp;
 }
 
+multivariate_solution MayflySearch::solution(){
+	return {_best, _fev, false};
+}
+
 multivariate_solution MayflySearch::optimize(const multivariate_problem &f,
 		const double *guess) {
 	init(f, guess);

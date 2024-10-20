@@ -83,6 +83,10 @@ void CrsSearch::iterate() {
 	update();
 }
 
+multivariate_solution CrsSearch::solution(){
+	return {_points[0]._x, _fev, stop()};
+}
+
 multivariate_solution CrsSearch::optimize(const multivariate_problem &f,
 		const double *guess) {
 	init(f, guess);

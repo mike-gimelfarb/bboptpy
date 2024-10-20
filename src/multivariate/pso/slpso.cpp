@@ -152,33 +152,40 @@ void SLPSOSearch::iterate() {
 	updatePar();
 }
 
+multivariate_solution SLPSOSearch::solution(){
+	return {_abest, _fev, converged()};
+}
+
 multivariate_solution SLPSOSearch::optimize(const multivariate_problem &f,
 		const double *guess) {
 	init(f, guess);
-	bool converged = false;
+	bool converge = false;
 	while (_fev < _mfev) {
 		iterate();
-
-		// compute standard deviation of swarm radiuses
-		int count = 0;
-		double mean = 0.;
-		double m2 = 0.;
-		for (const auto &k : _swarm) {
-			const double x = dnrm2(_n, &k._x[0]);
-			count++;
-			const double delta = x - mean;
-			mean += delta / count;
-			const double delta2 = x - mean;
-			m2 += delta * delta2;
-		}
-
-		// test convergence in standard deviation
-		if (m2 <= (_np - 1) * _tol * _tol) {
-			converged = true;
+		if (converged()) {
+			converge = true;
 			break;
 		}
 	}
-	return {_abest, _fev, converged};
+	return {_abest, _fev, converge};
+}
+
+bool SLPSOSearch::converged(){
+
+	// compute standard deviation of swarm radiuses
+	int count = 0;
+	double mean = 0.;
+	double m2 = 0.;
+	for (const auto &k : _swarm) {
+		const double x = dnrm2(_n, &k._x[0]);
+		count++;
+		const double delta = x - mean;
+		mean += delta / count;
+		const double delta2 = x - mean;
+		m2 += delta * delta2;
+	}
+
+	return m2 <= (_np - 1) * _tol * _tol;
 }
 
 int SLPSOSearch::roulette(slpso_particle &k) {

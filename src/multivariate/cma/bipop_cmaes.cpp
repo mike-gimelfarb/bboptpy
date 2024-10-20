@@ -163,6 +163,10 @@ void BiPopCmaes::iterate() {
 	}
 }
 
+multivariate_solution BiPopCmaes::solution(){
+	return {_xbest, _fev, false};
+}
+
 multivariate_solution BiPopCmaes::optimize(const multivariate_problem &f,
 		const double *guess) {
 	init(f, guess);

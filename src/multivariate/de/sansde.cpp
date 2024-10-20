@@ -212,34 +212,43 @@ void SaNSDESearch::iterate() {
 	}
 }
 
+multivariate_solution SaNSDESearch::solution(){
+	std::sort(_swarm.begin(), _swarm.end(), sansde_point::compare_fitness);
+	return {_swarm[0]._x, _fev, converged()};
+}
+
 multivariate_solution SaNSDESearch::optimize(const multivariate_problem &f,
 		const double *guess) {
 	init(f, guess);
-	bool converged = false;
+	bool converge = false;
 	while (_fev < _mfev) {
 		iterate();
-
-		// compute standard deviation of swarm radiuses
-		int count = 0;
-		double mean = 0.;
-		double m2 = 0.;
-		for (const auto &pt : _swarm) {
-			const double x = dnrm2(_n, &pt._x[0]);
-			count++;
-			const double delta = x - mean;
-			mean += delta / count;
-			const double delta2 = x - mean;
-			m2 += delta * delta2;
-		}
-
-		// test convergence in standard deviation
-		if (m2 <= (_np - 1) * _tol * _tol) {
-			converged = true;
+		if (converged()) {
+			converge = true;
 			break;
 		}
 	}
 	std::sort(_swarm.begin(), _swarm.end(), sansde_point::compare_fitness);
-	return {_swarm[0]._x, _fev, converged};
+	return {_swarm[0]._x, _fev, converge};
+}
+
+bool SaNSDESearch::converged(){
+
+	// compute standard deviation of swarm radiuses
+	int count = 0;
+	double mean = 0.;
+	double m2 = 0.;
+	for (const auto &pt : _swarm) {
+		const double x = dnrm2(_n, &pt._x[0]);
+		count++;
+		const double delta = x - mean;
+		mean += delta / count;
+		const double delta2 = x - mean;
+		m2 += delta * delta2;
+	}
+
+	// test convergence in standard deviation
+	return m2 <= (_np - 1) * _tol * _tol;
 }
 
 double SaNSDESearch::mutate(double *x, double *best, double *xr1, double *xr2,

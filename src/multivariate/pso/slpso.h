@@ -68,10 +68,14 @@ public:
 
 	void iterate();
 
+	multivariate_solution solution();
+
 	multivariate_solution optimize(const multivariate_problem &f,
 			const double *guess);
 
 private:
+	bool converged();
+
 	int roulette(slpso_particle &k);
 
 	// particle updating routines

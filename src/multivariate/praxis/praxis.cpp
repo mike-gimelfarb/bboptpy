@@ -46,6 +46,10 @@ void Praxis::iterate() {
 	// nothing to do here
 }
 
+multivariate_solution Praxis::solution(){
+	return {{}, 0, false};
+}
+
 multivariate_solution Praxis::optimize(const multivariate_problem &f,
 		const double *guess) {
 	if (f._hasc || f._hasbbc) {

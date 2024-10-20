@@ -108,32 +108,40 @@ void APSOSearch::iterate() {
 	_it++;
 }
 
+multivariate_solution APSOSearch::solution(){
+	return {_xbest,_fev, converged()};
+}
+
 multivariate_solution APSOSearch::optimize(const multivariate_problem &f,
 		const double *guess) {
 	init(f, guess);
-	bool converged = false;
+	bool converge = false;
 	while (_it < _maxit && _fev < _mfev) {
 		iterate();
-
-		// finish when the swarm diversity becomes too small
-		int count = 0;
-		double mean = 0.;
-		double m2 = 0.;
-		for (const auto &pt : _swarm) {
-			const double x = dnrm2(_n, &pt._x[0]);
-			count++;
-			const double delta = x - mean;
-			mean += delta / count;
-			const double delta2 = x - mean;
-			m2 += delta * delta2;
-		}
-
-		if (m2 <= (_np - 1) * _tol * _tol) {
-			converged = true;
+		if (converged()) {
+			converge = true;
 			break;
 		}
 	}
-	return {_xbest,_fev, converged};
+	return {_xbest,_fev, converge};
+}
+
+bool APSOSearch::converged(){
+
+	// finish when the swarm diversity becomes too small
+	int count = 0;
+	double mean = 0.;
+	double m2 = 0.;
+	for (const auto &pt : _swarm) {
+		const double x = dnrm2(_n, &pt._x[0]);
+		count++;
+		const double delta = x - mean;
+		mean += delta / count;
+		const double delta2 = x - mean;
+		m2 += delta * delta2;
+	}
+
+	return m2 <= (_np - 1) * _tol * _tol;
 }
 
 /* =============================================================

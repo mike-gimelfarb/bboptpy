@@ -177,18 +177,22 @@ void ACD::iterate() {
 	_it++;
 }
 
+multivariate_solution ACD::solution(){
+	return {_xbest, _fev, converged()};
+}
+
 multivariate_solution ACD::optimize(const multivariate_problem &f,
 		const double *guess) {
 	init(f, guess);
-	bool conv = false;
+	bool converge = false;
 	while (_fev < _mfev) {
 		iterate();
 		if (converged()) {
-			conv = true;
+			converge = true;
 			break;
 		}
 	}
-	return {_xbest, _fev, conv};
+	return {_xbest, _fev, converge};
 }
 
 /* =============================================================

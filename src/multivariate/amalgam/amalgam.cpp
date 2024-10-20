@@ -233,19 +233,23 @@ void Amalgam::iterate() {
 	_t++;
 }
 
+multivariate_solution Amalgam::solution() {
+	std::vector<double> sol;
+	if (_noparam) {
+		sol = _best;
+	} else {
+		sol = _sols[0]._x;
+	}
+	return {sol, _fev, converged()};
+}
+
 multivariate_solution Amalgam::optimize(const multivariate_problem &f,
 		const double *guess) {
 	init(f, guess);
 	while (true) {
 		iterate();
 		if (converged()) {
-			std::vector<double> sol;
-			if (_noparam) {
-				sol = _best;
-			} else {
-				sol = _sols[0]._x;
-			}
-			return {sol, _fev, _fev < _mfev};
+			return solution();
 		}
 	}
 }

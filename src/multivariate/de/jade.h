@@ -68,10 +68,14 @@ public:
 
 	void iterate();
 
+	multivariate_solution solution();
+
 	multivariate_solution optimize(const multivariate_problem &f,
 			const double *guess);
 
 private:
+	bool converged();
+
 	double mutate(double *x, double *best, double *xr1, double *xr2,
 			double *out, int n, double F, double CR);
 

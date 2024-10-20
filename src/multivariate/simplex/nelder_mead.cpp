@@ -225,6 +225,10 @@ void NelderMead::iterate() {
 	}
 }
 
+multivariate_solution NelderMead::solution(){
+	return {_xmin, _icount, _conv};
+}
+
 multivariate_solution NelderMead::optimize(const multivariate_problem &f,
 		const double *guess) {
 	init(f, guess);

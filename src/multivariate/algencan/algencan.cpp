@@ -85,6 +85,24 @@ void Algencan::iterate() {
 	updateRho();
 	updateMultipliers();
 	_it++;
+
+	// print progress
+	const double xicm = icm();
+	if (_print) {
+		const double lag = lagrangian(&_x0[0]);
+		_table.printRow(_it - 1, _f._f(&_x0[0]), xicm, lag, _localconv,
+				_fev, _rho);
+	}
+
+	// update most feasible point solution found
+	if (xicm < _icmbest) {
+		_icmbest = xicm;
+		std::copy(_x0.begin(), _x0.end(), _xbest.begin());
+	}
+}
+
+multivariate_solution Algencan::solution(){
+	return {_xbest, _fev, _cev, _bbev, icm() <= _tol};
 }
 
 multivariate_solution Algencan::optimize(const multivariate_problem &f,
@@ -92,12 +110,11 @@ multivariate_solution Algencan::optimize(const multivariate_problem &f,
 	init(f, guess);
 
 	// print header and initialization
-	double xicm = icm();
 	if (_print) {
 		_table.setWidth( { 5, 25, 25, 25, 5, 10, 25 });
 		_table.printRow("iter", "f*", "icm", "L", "conv", "fev", "rho");
 		const double L = lagrangian(&_x0[0]);
-		_table.printRow(_it - 1, _f._f(&_x0[0]), xicm, L, false, _fev, _rho);
+		_table.printRow(_it - 1, _f._f(&_x0[0]), icm(), L, false, _fev, _rho);
 	}
 
 	// main loop
@@ -105,22 +122,8 @@ multivariate_solution Algencan::optimize(const multivariate_problem &f,
 	while (_it < _mit) {
 		iterate();
 
-		// print progress
-		xicm = icm();
-		if (_print) {
-			const double lag = lagrangian(&_x0[0]);
-			_table.printRow(_it - 1, _f._f(&_x0[0]), xicm, lag, _localconv,
-					_fev, _rho);
-		}
-
-		// update most feasible point solution found
-		if (xicm < _icmbest) {
-			_icmbest = xicm;
-			std::copy(_x0.begin(), _x0.end(), _xbest.begin());
-		}
-
 		// check convergence
-		if (xicm <= _tol) {
+		if (icm() <= _tol) {
 			conv = true;
 			break;
 		}

@@ -59,7 +59,7 @@ void DSSearch::init(const multivariate_problem &f, const double *guess) {
 	_fev = 0;
 	_jind = std::vector<int>(_np);
 	_methods = std::vector<int>(4);
-	for (int i = 0; i < 4; i++){
+	for (int i = 0; i < 4; i++) {
 		_methods[i] = i + 1;
 	}
 
@@ -139,7 +139,7 @@ void DSSearch::iterate() {
 
 	// update method probabilities using Rexp3
 	if (_adapt) {
-		if (_it % _nbatch == 0){
+		if (_it % _nbatch == 0) {
 			std::fill(_w.begin(), _w.end(), 1.0);
 		}
 		const double reward = (1. * nsucc) / _np;
@@ -155,6 +155,12 @@ void DSSearch::iterate() {
 	_it++;
 }
 
+multivariate_solution DSSearch::solution() {
+	const int imin = std::min_element(_swarm.begin(), _swarm.end(),
+			ds_particle::compare_fitness) - _swarm.begin();
+	return {_swarm[imin]._x, _fev, converged()};
+}
+
 multivariate_solution DSSearch::optimize(const multivariate_problem &f,
 		const double *guess) {
 
@@ -162,47 +168,52 @@ multivariate_solution DSSearch::optimize(const multivariate_problem &f,
 	init(f, guess);
 
 	// main loop
-	bool converged = false;
+	bool converge = false;
 	while (_fev < _mfev) {
-
-		// perform iteration
 		iterate();
-
-		// converge when distance in fitness between best and worst points
-		// is below the given tolerance
-		const int idxmin = std::min_element(_swarm.begin(), _swarm.end(),
-				ds_particle::compare_fitness) - _swarm.begin();
-		const int idxmax = std::max_element(_swarm.begin(), _swarm.end(),
-				ds_particle::compare_fitness) - _swarm.begin();
-		const double best = _swarm[idxmin]._f;
-		const double worst = _swarm[idxmax]._f;
-		const double dy = std::fabs(best - worst);
-		if (dy <= _tol) {
-
-			// compute standard deviation of swarm radiuses
-			int count = 0;
-			double mean = 0., m2 = 0.;
-			for (const auto &pt : _swarm) {
-				const double x = dnrm2(_n, &pt._x[0]);
-				count++;
-				const double delta = x - mean;
-				mean += delta / count;
-				const double delta2 = x - mean;
-				m2 += delta * delta2;
-			}
-
-			// test convergence in standard deviation
-			if (m2 <= (_np - 1) * _stol * _stol) {
-				converged = true;
-				break;
-			}
+		if (converged()) {
+			converge = true;
+			break;
 		}
 	}
 
 	// update results
 	const int imin = std::min_element(_swarm.begin(), _swarm.end(),
 			ds_particle::compare_fitness) - _swarm.begin();
-	return {_swarm[imin]._x, _fev, converged};
+	return {_swarm[imin]._x, _fev, converge};
+}
+
+bool DSSearch::converged() {
+
+	// converge when distance in fitness between best and worst points
+	// is below the given tolerance
+	const int idxmin = std::min_element(_swarm.begin(), _swarm.end(),
+			ds_particle::compare_fitness) - _swarm.begin();
+	const int idxmax = std::max_element(_swarm.begin(), _swarm.end(),
+			ds_particle::compare_fitness) - _swarm.begin();
+	const double best = _swarm[idxmin]._f;
+	const double worst = _swarm[idxmax]._f;
+	const double dy = std::fabs(best - worst);
+	if (dy <= _tol) {
+
+		// compute standard deviation of swarm radiuses
+		int count = 0;
+		double mean = 0., m2 = 0.;
+		for (const auto &pt : _swarm) {
+			const double x = dnrm2(_n, &pt._x[0]);
+			count++;
+			const double delta = x - mean;
+			mean += delta / count;
+			const double delta2 = x - mean;
+			m2 += delta * delta2;
+		}
+
+		// test convergence in standard deviation
+		if (m2 <= (_np - 1) * _stol * _stol) {
+			return true;
+		}
+	}
+	return false;
 }
 
 void DSSearch::genDir(int method) {

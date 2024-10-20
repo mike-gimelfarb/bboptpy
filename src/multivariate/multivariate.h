@@ -139,6 +139,8 @@ public:
 
 	virtual void iterate() = 0;
 
+	virtual multivariate_solution solution() = 0;
+
 	virtual multivariate_solution optimize(const multivariate_problem &f,
 			const double *guess) = 0;
 };

@@ -61,6 +61,8 @@ public:
 
 	void iterate();
 
+	multivariate_solution solution();
+
 	multivariate_solution optimize(const multivariate_problem &f,
 			const double *guess);
 

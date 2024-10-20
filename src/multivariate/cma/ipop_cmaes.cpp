@@ -161,6 +161,10 @@ void IPopCmaes::iterate() {
 	}
 }
 
+multivariate_solution IPopCmaes::solution(){
+	return {_xbest, _fev, false};
+}
+
 multivariate_solution IPopCmaes::optimize(const multivariate_problem &f,
 		const double *guess) {
 	init(f, guess);

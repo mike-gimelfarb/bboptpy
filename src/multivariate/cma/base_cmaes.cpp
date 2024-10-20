@@ -155,6 +155,10 @@ void BaseCmaes::iterate() {
 	_it++;
 }
 
+multivariate_solution BaseCmaes::solution(){
+	return {bestSolution(), _fev, converged()};
+}
+
 multivariate_solution BaseCmaes::optimize(const multivariate_problem &f,
 		const double *guess) {
 	init(f, guess);

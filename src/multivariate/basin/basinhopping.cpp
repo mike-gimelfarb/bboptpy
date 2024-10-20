@@ -189,6 +189,10 @@ void BasinHopping::iterate() {
 	_it++;
 }
 
+multivariate_solution BasinHopping::solution(){
+	return {_bestx, _fev, _cev, _bbev, false};
+}
+
 multivariate_solution BasinHopping::optimize(const multivariate_problem &f,
 		const double *guess) {
 	init(f, guess);

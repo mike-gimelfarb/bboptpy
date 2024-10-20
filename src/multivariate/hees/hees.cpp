@@ -129,6 +129,10 @@ void Hees::iterate() {
 	stepSizeUpdate();
 }
 
+multivariate_solution Hees::solution(){
+	return {_xbest, _fev, converged()};
+}
+
 multivariate_solution Hees::optimize(const multivariate_problem &f,
 		const double *guess) {
 
@@ -143,7 +147,7 @@ multivariate_solution Hees::optimize(const multivariate_problem &f,
 				break;
 			}
 		}
-		return {_xbest,_fev, conv};
+		return {_xbest, _fev, conv};
 	}
 
 	// print header

@@ -209,6 +209,10 @@ void Rosenbrock::iterate() {
 	}
 }
 
+multivariate_solution Rosenbrock::solution(){
+	return {_x1, _fev, _ierr == 0};
+}
+
 multivariate_solution Rosenbrock::optimize(const multivariate_problem &f,
 		const double *guess) {
 	init(f, guess);
