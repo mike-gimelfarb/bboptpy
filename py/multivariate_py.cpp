@@ -364,7 +364,7 @@ void build_multivariate(py::module_ &m) {
 	py::class_<MultivariateOptimizer> solver(m, "MultivariateSearch");
 
 	solver.def("optimize",
-			[](MultivariateOptimizer &self, py_multivariate py_f,
+			[](MultivariateOptimizer &self, py_multivariate &py_f,
 					py::array_t<double> &py_lower,
 					py::array_t<double> &py_upper,
 					py::array_t<double> &py_guess) {
@@ -372,17 +372,42 @@ void build_multivariate(py::module_ &m) {
 				double *lower = static_cast<double*>(py_lower.request().ptr);
 				double *upper = static_cast<double*>(py_upper.request().ptr);
 
-				const multivariate &f = [&py_f, &n](const double *x) -> double {
+				multivariate f = [py_f, n](const double *x) -> double {
 					const auto &py_x = py::array_t<double>(n, x);
 					return py_f(py_x);
 				};
 
-				const multivariate_problem &prob { f, n, lower, upper };
+				multivariate_problem prob { f, n, lower, upper };
 				double *guess = static_cast<double*>(py_guess.request().ptr);
 				return self.optimize(prob, guess);
 			}, "f"_a, "lower"_a, "upper"_a, "guess"_a,
 			py::call_guard<py::scoped_ostream_redirect,
 					py::scoped_estream_redirect>());
+
+	solver.def("initialize",
+			[](MultivariateOptimizer &self, py_multivariate &py_f,
+					py::array_t<double> &py_lower,
+					py::array_t<double> &py_upper,
+					py::array_t<double> &py_guess) {
+				const int n = py_lower.size();
+				double *lower = static_cast<double*>(py_lower.request().ptr);
+				double *upper = static_cast<double*>(py_upper.request().ptr);
+
+				multivariate f = [py_f, n](const double *x) -> double {
+					const auto py_x = py::array_t<double>(n, x);
+					return py_f(py_x);
+				};
+
+				multivariate_problem prob { f, n, lower, upper };
+				double *guess = static_cast<double*>(py_guess.request().ptr);
+				return self.init(prob, guess);
+			}, "f"_a, "lower"_a, "upper"_a, "guess"_a,
+			py::call_guard<py::scoped_ostream_redirect,
+					py::scoped_estream_redirect>());
+
+	solver.def("iterate", &MultivariateOptimizer::iterate);
+
+	solver.def("solution", &MultivariateOptimizer::solution);
 
 	// put algorithm-specific bindings here
 	build_acd(m);
