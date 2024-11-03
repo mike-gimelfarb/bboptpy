@@ -13,7 +13,7 @@ void build_multivariate(py::module_&);
 // void build_constrained(py::module_&);
 // void build_structured_constrained(py::module_&);
 
-PYBIND11_MODULE(bboptpy, m) {
+PYBIND11_MODULE(_bboptpy, m) {
 	build_univariate(m);
 	build_multivariate(m);
 //	build_constrained(m);

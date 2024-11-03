@@ -23,7 +23,7 @@ def list_source_files(root_folder):
 
 ext_modules = [
     Pybind11Extension(
-        "bboptpy",
+        "_bboptpy",
         list_source_files('py') + list_source_files('src') + list_source_files(''),
         define_macros=[('VERSION_INFO', __version__)],
     ),
