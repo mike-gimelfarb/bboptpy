@@ -616,7 +616,65 @@ The key idea of xNES is to adapt the Gaussian sampling distribution using the na
    :type etamu: float
    :returns: optimizer instance
    :rtype: object of type MultivariateSearch
+
+
+LIPO with Max Heuristic and Quadratic Trust Region (Max-LIPO-TR)
+-------------------
  
+This version of the LIPO algorithm is described in the papers:
+
+* Malherbe, Cédric, and Nicolas Vayatis. "Global optimization of Lipschitz functions." International Conference on Machine Learning. PMLR, 2017.
+* Zhang, Z. Q., Li, P. J., Li, Q. K., Dong, X., Lu, X. G., & Zhang, Y. F. (2023). Dynamic machine learning global optimization algorithm and its application to aerodynamics. Journal of Propulsion and Power, 39(4), 524-539.
+
+In summary, LIPO is a global search algorithm that optimizes a piecewise-linear surrogate function
+under the Lipschitz assumption, where the Lipschitz constant is typically estimated from the history
+of previous function evaluations. The Max-LIPO-TR version significantly enhances the original algorithm
+by guiding the search via maximization of the surrogate function. To improve local search,
+it also builds and optimizes a local quadratic model of the objective function. This version
+of the algorithm uses scipy optimizers as the backend.
+
+.. function:: LIPOSearch(mfev, p=0.2, quasi_random=False, kvalues=None, max_sample_iters=100,
+                         maxlipo=True, maxlipo_starts=1, maxlipo_method=None, maxlipo_options=None,
+                         tr=True, tr_max_pts=0, tr_max_radius=np.inf, tr_method=None, tr_options=None,
+                         verbose=False)
+
+   Initializes a new LIPO optimizer with the specified parameters.
+
+   :param mfev: Maximum number of function evaluations.
+   :type mfev: int
+   :param p: Probability of performing random search at each iteration for exploration.
+   :type p: float
+   :param quasi_random: Whether random search uses quasi-random sampling.
+   :type quasi_random: bool
+   :param kvalues: Set of possible Lipschitz constants (uses default setting in the paper if None).
+   :type kvalues: List[float]
+   :param max_sample_iters: Maximum iterations for sampling an improvement point (ignored if maxlipo is False).
+   :type max_sample_iters: int
+   :param maxlipo: Whether the surrogate is optimized directly instead of searching for improvement point.
+   :type maxlipo: bool
+   :param maxlipo_starts: Number of restarts of the surrogate optimizer.
+   :type maxlipo_starts: int
+   :param maxlipo_method: Scipy optimizer for maxlipo.
+   :type maxlipo_method: str
+   :param maxlipo_options: Options to pass to the optimizer for maxlipo.
+   :type maxlipo_options: Dict
+   :param tr: Whether to build and optimize a local quadratic model.
+   :type tr: bool
+   :param tr_max_pts: Maximum number of points to use for the quadratic model.
+   :type tr_max_pts: int
+   :param tr_max_radius: Maximum radius around the best point to use for the quadratic model.
+   :type tr_max_radius: float
+   :param tr_method: Scipy optimizer for the quadratic model.
+   :type tr_method: str
+   :param tr_options: Options to pass to the optimizer of the quadratic model.
+   :type tr_options: Dict
+   :param verbose: Whether to print progress to the console.
+   :type verbose: bool
+   
+   :returns: optimizer instance
+   :rtype: object of type MultivariateSearch
+
+
 
 Novel Self-Adaptive Harmony Search (NSHS)
 -------------------

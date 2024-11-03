@@ -56,6 +56,7 @@ The following algorithms are currently fully supported with Python wrappers:
             * [SSDE](https://www.mdpi.com/2227-7390/10/23/4519#B47-mathematics-10-04519)
         * [Differential Search (DSA)](https://www.sciencedirect.com/science/article/abs/pii/S0098300411004353)
         * [Exponential Natural Evolution Strategy (xNES)](https://dl.acm.org/doi/10.1145/1830483.1830557)
+        * [LIPO Search with Max Heuristic and Local Search (MAX-LIPO-TR)](https://arc.aiaa.org/doi/10.2514/1.B38782)
         * [Novel Self-Adaptive Harmony Search (NSHS)](https://onlinelibrary.wiley.com/doi/10.1155/2013/653749)
         * [Hessian Evolutionary Strategy (HE-ES)](https://link.springer.com/chapter/10.1007/978-3-030-58112-1_41)
         * [Self-Adaptive Multi-Population JAYA](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8640077)
