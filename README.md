@@ -74,6 +74,8 @@ The following algorithms are currently fully supported with Python wrappers:
        
 # Usage
 
+## Univariate Optimization
+
 Simple example to optimize a univariate function:
 
 ```python
@@ -97,6 +99,8 @@ calls to f: 10
 converged: 1
 ```
 
+## Multivariate Optimization
+
 Simple example to optimize a multivariate function:
 
 ```python
@@ -105,10 +109,7 @@ from bboptpy import ActiveCMAES
 
 # function to optimize
 def fx(x):
-    total = 0.0
-    for x1, x2 in zip(x[:-1], x[1:]):
-        total += 100 * (x2 - x1 ** 2) ** 2 + (1 - x1) ** 2
-    return total
+    return sum((100 * (x2 - x1 ** 2) ** 2 + (1 - x1) ** 2) for x1, x2 in zip(x[:-1], x[1:]))
 
 n = 10  # dimension of problem
 alg = ActiveCMAES(mfev=10000, tol=1e-4, np=20)
@@ -124,6 +125,27 @@ objective calls: 6980
 constraint calls: 0
 B/B constraint calls: 0
 converged: yes
+```
+
+## Incremental Optimization
+
+The following example illustrates how to run bboptpy optimizers incrementally, 
+returning the control to the Python interpreter between iterations:
+
+```python
+import numpy as np
+from bboptpy import ActiveCMAES
+
+# function to optimize
+def fx(x):
+    return sum((100 * (x2 - x1 ** 2) ** 2 + (1 - x1) ** 2) for x1, x2 in zip(x[:-1], x[1:]))
+
+n = 10  # dimension of problem
+alg = ActiveCMAES(mfev=10000, tol=1e-4, np=20)
+alg.initialize(f=fx, lower=-10 * np.ones(n), upper=10 * np.ones(n), guess=np.random.uniform(-10, 10, size=n))
+while True:
+    alg.iterate()
+    print(alg.solution())
 ```
 
 # Citation
