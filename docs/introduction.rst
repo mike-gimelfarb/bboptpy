@@ -80,6 +80,37 @@ This will print the following output:
 
 which indicates the algorithm has found a local minimum (in this case, also a global minimum).
 
+
+Incremental Optimization Example
+-------------------
+
+For most algorithms, it is also possible to update the best solution and 
+return the control to the Python interpreter between iterations. This could be useful
+for implementing custom stopping criteria or loss monitoring, or for using bboptpy algorithms
+in a customized way in downstream applications.
+
+The following example illustrates how this can be done:
+
+.. code-block:: python
+
+    import numpy as np
+    from bboptpy import ActiveCMAES
+
+    # function to optimize
+    def fx(x):
+        return sum((100 * (x2 - x1 ** 2) ** 2 + (1 - x1) ** 2) for x1, x2 in zip(x[:-1], x[1:]))
+
+    n = 10  # dimension of problem
+    alg = ActiveCMAES(mfev=10000, tol=1e-4, np=20)
+    alg.initialize(f=fx,
+                   lower=-10 * np.ones(n),
+                   upper=10 * np.ones(n),
+                   guess=np.random.uniform(low=-10., high=10., size=n))
+    while True:
+        alg.iterate()
+        print(alg.solution())
+
+
 Citation
 -------------------
 
