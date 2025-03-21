@@ -36,6 +36,7 @@
 #include "../src/multivariate/rosenbrock/rosenbrock.h"
 #include "../src/multivariate/simplex/nelder_mead.h"
 #include "../src/multivariate/crs/crs.h"
+#include "../src/multivariate/spiral/spiral.h"
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -340,6 +341,15 @@ void build_crs(py::module_ &m) {
 	solver.def(py::init<int, int, double>(), "mfev"_a, "np"_a, "tol"_a);
 }
 
+void build_spiral(py::module_ &m) {
+	py::class_<SpiralSearch, MultivariateOptimizer> solver(m, "SpiralSearch");
+	solver.def(py::init<int, double, int, double, double, double, double, 
+			double, double, double, double>(), 
+		"mfev"_a, "tol"_a, "np"_a=20, "r"_a=0.95, "theta"_a=1.57079632679, 
+		"taur"_a=0.0, "tautheta"_a=0.1, 
+		"rlow"_a=0.9, "rhigh"_a=1.0, "thetalow"_a=0.0, "thetahigh"_a=6.28318530718);
+}
+
 // wrap the function expressions
 typedef std::function<double(const py::array_t<double>&)> py_multivariate;
 
@@ -440,4 +450,5 @@ void build_multivariate(py::module_ &m) {
 	build_rosenbrock(m);
 	build_simplex(m);
 	build_crs(m);
+	build_spiral(m);
 }
